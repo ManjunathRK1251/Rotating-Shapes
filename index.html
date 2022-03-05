@@ -1,0 +1,61 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="two.min.js"></script>
+    <script type="text/javascript" src="utils.js"></script>
+</head>
+
+<body>
+    <section></section>
+    <script type="text/javascript">
+        const container = document.querySelector("section");
+        const params = {
+            width: 500,
+            height: 500
+        };
+        const two = new Two(params);
+        two.appendTo(container);
+
+        const numberOfShapes = 12;
+        const plotRadius = 150; //how big the circle should be , this represents the radius of the circle of squares
+
+        const shapes = [];
+        for (let i = 0; i < numberOfShapes; i++) {
+            const angle = fullRotation * i / numberOfShapes;
+
+            // let x = i * 30 + 30; //we have added 30 because , the first square will be exactly the center so it'll not appear fully
+            let x = 250 + plotRadius * Math.cos(angle); //250 is added to move the circle of squares to middle
+            let y = 250 + plotRadius * Math.sin(angle);
+
+
+            const shape = two.makeRectangle(x, y, 50, 50); // if x and y is not changed all squares will be overlapped on one another
+            //so we need to change x and y
+
+            shape.noStroke();
+            shape.fill = "#f9bc31";
+            shape.rotation = angle;
+
+            shapes.push(shape);
+        }
+
+        //In order to move the rotating squares revolve around the center in a circular fashion, we must group it
+        const group = two.makeGroup(shapes);
+
+        two.bind("update", function () {
+
+
+            //shapes list accesses all the shapes in the list
+            //forEach accesses each shape
+            //each shape is stored in shape variable
+            //each shape will be modified using the statements within {}
+            shapes.forEach(shape => {
+                shape.rotation += 0.025;
+            })
+        })
+
+        two.play();
+    </script>
+</body>
+
+</html>
