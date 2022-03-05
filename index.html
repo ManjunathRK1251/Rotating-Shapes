@@ -7,9 +7,13 @@
 </head>
 
 <body>
-    <section></section>
+    <section id="outer-container"></section>
     <script type="text/javascript">
-        const container = document.querySelector("section");
+
+        const numberOfShapes = 25;
+        const plotRadius = 150; //how big the circle should be , this represents the radius of the circle of squares
+
+        const container = document.getElementById("outer-container");
         const params = {
             width: 500,
             height: 500
@@ -17,46 +21,89 @@
         const two = new Two(params);
         two.appendTo(container);
 
-        const numberOfShapes = 25;
-        const plotRadius = 150; //how big the circle should be , this represents the radius of the circle of squares
 
-        const shapes = [];
-        for (let i = 0; i < numberOfShapes; i++) {
-            const angle = fullRotation * i / numberOfShapes;
+        // const v = generateShapes();
+        function generateShapes(plotRadius, width, height, color) {
+            const shapes = [];
+            for (let i = 0; i < numberOfShapes; i++) {
+                const angle = fullRotation * i / numberOfShapes;
 
-            // let x = i * 30 + 30; //we have added 30 because , the first square will be exactly the center so it'll not appear fully
-            let x = plotRadius * Math.cos(angle); //250 is added to move the circle of squares to middle
-            let y = plotRadius * Math.sin(angle);
+                // let x = i * 30 + 30; //we have added 30 because , the first square will be exactly the center so it'll not appear fully
+                let x = plotRadius * Math.cos(angle); //250 is added to move the circle of squares to middle
+                let y = plotRadius * Math.sin(angle);
 
 
-            const shape = two.makeRectangle(x, y, 50, 50); // if x and y is not changed all squares will be overlapped on one another
-            //so we need to change x and y
+                const shape = two.makeRectangle(x, y, width, height); // if x and y is not changed all squares will be overlapped on one another
+                //so we need to change x and y
 
-            shape.noStroke();
-            shape.fill = "#f9bc31";
-            shape.rotation = angle;
+                // shape.noStroke();
+                shape.fill = color;
+                shape.rotation = angle;
 
-            shapes.push(shape);
+                shapes.push(shape);
+            }
+            return shapes;
+        }
+        const outer_shapes = generateShapes(200, 50, 50, "#6E3CBC");
+        const inner_shapes = generateShapes(175, 50, 50, "#7267CB");
+        const inner_shapes_1 = generateShapes(90, 120, 10, "#8886bf");
+        // const inner_curves = generateCurves(13, 75, 65, Math.PI * 0.45, "FFFDA2");
+        const star = two.makeStar(250, 250, 70, 40, 15);
+        // star.noStroke();
+        star.fill = "#DCD6F7"
+        star.rotation = Math.PI * 0.6;
+
+        function generateCurves(numberOfCurves, outerRadius, innerRadius, angle, color) {
+            const curves = [];
+            for (let i = 0; i < numberOfCurves; i++) {
+                const angle = fullRotation * i / numberOfCurves;
+                const startangle = Math.PI * i;
+                const endangle = Math.PI * i + 0.45;
+                let x = Math.cos(angle);
+                let y = Math.sin(angle);
+                const curve = two.makeArcSegment(x, y, outerRadius, innerRadius, startangle, endangle);
+                curve.rotation = Math.PI + i * 0.25;
+                curve.translation.set(250, 250);
+                curve.noStroke();
+                i % 2 == 0 ? curve.fill = "#FFE162" : curve.fill = "#FFB72B"
+                curves.push(curve);
+            }
         }
 
-        //In order to move the rotating squares revolve around the center in a circular fashion, we must group it
-        const group = two.makeGroup(shapes);
-        group.translation.set(250, 250);
-        two.bind("update", function () {
 
+        //In order to move the rotating squares revolve around the center in a circular fashion, we must group it
+        const outer_group = two.makeGroup(outer_shapes);
+        const inner_group = two.makeGroup(inner_shapes);
+        const inner_group_1 = two.makeGroup(inner_shapes_1);
+        inner_group.translation.set(250, 250);
+        inner_group_1.translation.set(250, 250);
+        outer_group.translation.set(250, 250);
+        two.bind("update", function () {
+            star.rotation += 0.040
             //to rotate the group
-            group.rotation += 0.025
+            inner_group.rotation -= 0.025
+            inner_group_1.rotation += 0.025
+            outer_group.rotation += 0.025
             //shapes list accesses all the shapes in the list
             //forEach accesses each shape
             //each shape is stored in shape variable
             //each shape will be modified using the statements within {}
-            shapes.forEach(shape => {
+            outer_shapes.forEach(shape => {
                 shape.rotation += 0.025;
+            });
+
+            inner_shapes.forEach(shape => {
+                shape.rotation += 0.025;
+            });
+
+            inner_shapes_1.forEach(shape => {
+                shape.rotation -= 0.05;
             })
         })
 
         two.play();
     </script>
+
 </body>
 
 </html>
